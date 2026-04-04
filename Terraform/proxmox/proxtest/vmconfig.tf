@@ -4,8 +4,9 @@ resource "proxmox_vm_qemu" "terraform_boot_test" {
   description = "A test vm managed by terraform."
   agent       = "1"
   ipconfig0   = "ip=dhcp"
-
-  clone = "cloud-init-test"
+  sshkeys     = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMaqAZ9mE5bUEunI2SdlbGwVSIpeq79zXFKlSYaRdzNB mario@MariosLPC" # probably broken for some reason
+  skip_ipv6   = "true"
+  clone       = "cloud-init-test"
 
   # Define cpu options
   cpu {
@@ -28,7 +29,7 @@ resource "proxmox_vm_qemu" "terraform_boot_test" {
           storage    = "zfs-nvme"
           size       = "16"
           emulatessd = "true"
-          iothread   = "false"
+          iothread   = "true"
           discard    = "true"
           backup     = "true"
           replicate  = "true"
