@@ -61,5 +61,6 @@ K3s0-2 | VM | Test kubernetes |
   | Original | Pinned Name |
   | --- | --- | 
   |eno1 | enNicMgmt0
-  |enp3s0 | enNicData0|
+  |enp3s0 | enNicData0|  
+  
   see [docs](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_using_the_pve_network_interface_pinning_tool) for details on proxmox-network-interface-pinning
