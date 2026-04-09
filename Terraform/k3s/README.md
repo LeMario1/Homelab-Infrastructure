@@ -1,0 +1,1 @@
+This project is incomplete as of now. It is a plain copy of the proxtest project. It uses the cloud-init-test template. You should configure a "golden template" first for small vms and test workloads. Then use that as a base for your k3s vms, and use ansible to install k3s on the vms.
