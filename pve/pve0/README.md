@@ -31,6 +31,12 @@ K3s0-2 | VM | Test kubernetes |
   ### Truenas
   Drives are passed through by device ID.
   ### MediaHost GPU passthrough
+  GPU passthrough is acheived by the following steps:
+  1) Enable iommu
+  2) Bind igpu to vfio by pci ID
+  3) Disable framebuffer drivers
+  3) Pass gpu to vm
+  #### 1. Enable iommu      
   When running zfs root and systemd-boot, edit:  
    ```
    /etc/kernel/cmdline
@@ -41,12 +47,56 @@ K3s0-2 | VM | Test kubernetes |
    ```  
    example configuration: 
    ```
-   root=ZFS=rpool/ROOT/pve-1 boot=zfs intel_iommu=on iommu=pt video=efifb:off,vesafb:off,simplefb:off nomodeset vfio-pci.ids=8086:4c8b
+   root=ZFS=rpool/ROOT/pve-1 boot=zfs intel_iommu=on iommu=pt
    ```  
   Apply the change:
   ```
   proxmox-boot-tool refresh
   ```
+  #### 2. Bind ipgu to vfio
+  Find gpu pci id with:
+  ```
+  lspci -nn | grep graphics -i
+  ```
+  Example output:
+  ```
+  01:00.0 VGA compatible controller [0300]: Intel Corporation RocketLake-S GT1 [UHD Graphics 730] [8086:4c8b] (rev 04)
+  ```
+  This is the pci id in this example:
+  ```
+  [8086:4c8b]
+  ```
+  Bind pci id to vfio by editing:
+  ```
+  /etc/kernel/cmdline
+  ```
+  To include:
+  ```
+  vfio-pci.ids=8086:4c8b
+  ```
+  Example configuration:
+  ```
+  root=ZFS=rpool/ROOT/pve-1 boot=zfs intel_iommu=on iommu=pt vfio-pci.ids=8086:4c8b
+  ```
+  #### 3. Disable framebuffer drivers
+  edit:
+  ```
+  /etc/kernel/cmdline
+  ```
+  To include:
+  ```
+  video=efifb:off,vesafb:off,simplefb:off nomodeset
+  ```
+  Example configuration:
+  ```
+  root=ZFS=rpool/ROOT/pve-1 boot=zfs intel_iommu=on iommu=pt video=efifb:off,vesafb:off,simplefb:off nomodeset vfio-pci.ids=8086:4c8b
+  ```
+  #### 4. Apply the changes
+  Run:
+  ```
+  proxmox-boot-tool refresh
+  ```
+  Then **reboot**.
   ## nic-pinning
   Sometimes device naming changes when pci devices are added are removed, which renames the management interface and hides the management gui.   
   
