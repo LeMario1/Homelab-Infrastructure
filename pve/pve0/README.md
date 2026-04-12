@@ -7,7 +7,6 @@ This system runs the bulk of core infrustructure including storage, media servic
 | Hardware | Specification |
 |----------|---------------|
 |CPU | Intel i5-11400k |
-|CPU | Intel 11400k
 |GPU | Intel integrated graphics
 |Ram | 96GB DDR4
 |Boot Drive | zfs mirrored 1tb sata SSD
@@ -20,7 +19,7 @@ This system runs the bulk of core infrustructure including storage, media servic
 | TrueNAS | VM | Storage |
 | MediaHost | VM | docker and media services|
 | GameVM | VM | manage game servers in pterodactyl |
-K3s0-2 | VM | Test kubernetes |
+| K3s0-2 | VM | Test kubernetes |
 | pihole2 | LXC | redundant dns forwarder and sinkhole |
 
 # Host Configuration
@@ -29,19 +28,47 @@ K3s0-2 | VM | Test kubernetes |
   - Intel iGPU (media transcoding)
   - TrueNAS storage drives
   ### Truenas
-  Drives are passed through by device ID.
+  Drives are passed through by device ID. 
+
+  On proxmox host, find vm id of TrueNAS:
+  ```
+  qm list | grep -i truenas
+  ```
+  Example output:
+  ```
+  100 TrueNAS             running    32768             32.00 2351353
+  ```
+  Now find the device ID of the HDD:
+  ```
+  ls /dev/disk/by-id
+  ```
+  Example output:
+  ```
+  ata-XXXXXXXXXXXXX-XXXXXX_XXXXXXXX
+  ```
+  Edit the vm configuration file under:
+  ```
+  /etc/pve/qemu-server/100.conf
+  ```
+  Include in the disk section:
+  ```
+  scsi1: /dev/disk/by-id/ata-XXXXXXXXXXXXX-XXXXXX_XXXXXXXX,backup=0,iothread=1
+  ```
+  The disks should be available to TrueNAS now.
   ### MediaHost GPU passthrough
-  GPU passthrough is acheived by the following steps:
+  GPU passthrough is achieved by the following steps:
   1) Enable iommu
   2) Bind igpu to vfio by pci ID
   3) Disable framebuffer drivers
   3) Pass gpu to vm
+  > [!WARNING]
+  > Passing through the only gpu on the system locks out the direct terminal in proxmox.
   #### 1. Enable iommu      
   When running zfs root and systemd-boot, edit:  
    ```
    /etc/kernel/cmdline
    ``` 
-   to include the following kernel paramaters:  
+   to include the following kernel parameters:  
    ```
    intel_iommu=on iommu=pt
    ```  
@@ -53,7 +80,7 @@ K3s0-2 | VM | Test kubernetes |
   ```
   proxmox-boot-tool refresh
   ```
-  #### 2. Bind ipgu to vfio
+  #### 2. Bind igpu to vfio
   Find gpu pci id with:
   ```
   lspci -nn | grep graphics -i
