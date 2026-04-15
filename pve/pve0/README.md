@@ -11,7 +11,7 @@ This system runs the bulk of core infrustructure including storage, media servic
 |Ram | 96GB DDR4
 |Boot Drive | zfs mirrored 1tb sata SSD
 |VM Drive | 1tb nvme SSD
-|Truenas Drives | 2 12tb HDD
+|Truenas Drives | 2 12tb HDD (zfs mirror)
 
 # Workoads
 | Name | Type | Purpose |
@@ -28,7 +28,8 @@ This system runs the bulk of core infrustructure including storage, media servic
   - Intel iGPU (media transcoding)
   - TrueNAS storage drives
   ### Truenas
-  Drives are passed through by device ID. 
+  <details>
+  <summary>For drives that are passed through by device ID:</summary> 
 
   On proxmox host, find vm id of TrueNAS:
   ```
@@ -55,6 +56,38 @@ This system runs the bulk of core infrustructure including storage, media servic
   scsi1: /dev/disk/by-id/ata-XXXXXXXXXXXXX-XXXXXX_XXXXXXXX,backup=0,iothread=1
   ```
   The disks should be available to TrueNAS now.
+
+  </details>
+  
+  <details>
+  <summary> For HBA passthrough: </summary>
+
+  #### 1. Enable pci passthrough and iommu (see GPU passthrough)
+  
+  #### 2. Ensure the HBA is in its own iommu group:
+  ```bash
+  for d in $(find /sys/kernel/iommu_groups/ -type l | sort -n -k5 -t/); do 
+    n=${d#*/iommu_groups/*}; n=${n%%/*}
+    printf 'IOMMU Group %s ' "$n"
+    lspci -nns "${d##*/}"
+done;
+  ```
+Example output: (make sure its the only member of its group)
+```
+IOMMU Group 14 01:00.0 RAID bus controller [0104]: Broadcom / LSI SAS2008 PCI-Express Fusion-MPT SAS-2 [Falcon] [1000:0072] (rev 03)
+```
+#### 3. Attach HBA to VM
+In the Proxmox web interface:
+
+1) Select the VM
+2) Click Hardware
+3) Click add PCI Device
+4) Select the HBA card
+5) Click Adavnced
+6) Turn Rom-Bar off
+7) Confrim and start VM
+  </details>
+
   ### MediaHost GPU passthrough
   GPU passthrough is achieved by the following steps:
   1) Enable iommu
@@ -140,4 +173,11 @@ This system runs the bulk of core infrustructure including storage, media servic
   |eno1 | enNicMgmt0
   |enp3s0 | enNicData0|  
   
+
+  Pinned interface configs are stored in:
+  ```
+  /usr/local/lib/systemd/network/
+  ```
+
+
   see [docs](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_using_the_pve_network_interface_pinning_tool) for details on proxmox-network-interface-pinning

@@ -1,0 +1,23 @@
+        labels:
+            - traefik.enable=true #allows traefik to autodiscover
+            - traefik.docker.network=proxy-net # specifies traefik use proxy-net
+
+            ## Routers
+            # Internal Router
+            - traefik.http.routers.<appname>-internal.rule=Host(`<appname>.home.packetbat.net`)
+            - traefik.http.routers.<appname>-internal.tls=true
+            - traefik.http.routers.<appname>-internal.entrypoints=websecure
+            - traefik.http.routers.<appname>-internal.service=<appname>
+
+            # External Router
+            # Uncomment this section if exposed this app is meant to expose to the internet
+            #- traefik.http.routers.<appname>-public.rule=Host(`<appname>.public.packetbat.net`)
+            #- traefik.http.routers.<appname>-public.tls=true
+            #- traefik.http.routers.<appname>-public.entrypoints=websecure
+            #- traefik.http.routers.<appname>-public.service=<appname>
+            # External Middleware
+            #- traefik.http.routers.<appname>-public.middlewares=crowdsec@file,public-ratelimit@file
+
+            ## Services
+            - traefik.http.services.<appname>.loadbalancer.server.port=<portvalue> # both routers share
+
