@@ -181,3 +181,54 @@ In the Proxmox web interface:
 
 
   see [docs](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_using_the_pve_network_interface_pinning_tool) for details on proxmox-network-interface-pinning
+
+## Backup Strategy
+### Host config backup
+Backup
+1) pve
+2) Pinned nics
+3) Interfaces
+34) Boot parameters
+5) Kernel modules
+6) Kernel module paramters
+7) Hosts
+8) Hostname
+9) SSH keys
+```
+cd / && \
+tar -czf backup.tar.gz / \
+etc/pve \
+usr/local/lib/systemd/network \
+etc/network/interfaces \
+etc/kernel/cmdline \
+etc/modules \
+etc/modprobe.d \
+etc/hosts \
+etc/hostname \
+root/.ssh
+```
+Or:
+```
+tar -czf backup.tar.gz etc
+```
+Restore them manually
+Run:
+```
+proxmox-boot-tool refresh
+```
+Reboot:
+```
+reboot now
+```
+ssh into a different node on the  cluster:
+```
+ssh root@192.168.88.246
+```
+run:
+```
+pvecm delnode pve0
+```
+then join pve0 back into the cluster:
+```
+pvecm add 192.168.88.200
+```
