@@ -4,14 +4,15 @@ This is the primary virtualization server for the homelab.
 This system runs the bulk of core infrustructure including storage, media services, experimental k3s clusters, test vms, and terraform vms.
 
 # Hardware
-| Hardware | Specification |
-|----------|---------------|
-|CPU | Intel i5-11400k |
-|GPU | Intel integrated graphics
-|Ram | 96GB DDR4
-|Boot Drive | zfs mirrored 1tb sata SSD
-|VM Drive | 1tb nvme SSD
-|Truenas Drives | 2 12tb HDD (zfs mirror)
+| Hardware | Specification | Reference |
+|----------|---------------| --------- |
+|Motherboard | Z490 Taichi | [manual](https://download.asrock.com/Manual/Z490%20Taichi.pdf)
+|CPU | Intel i5-11400k | [docs](https://www.intel.com/content/www/us/en/products/sku/212270/intel-core-i511400-processor-12m-cache-up-to-4-40-ghz/specifications.html)
+|GPU | Intel® UHD Graphics 730 | [specs](https://www.techpowerup.com/gpu-specs/uhd-graphics-730.c3765)
+|Ram | 96GB DDR4 |
+|Boot Drive | 128g M.2 SATA SSD (zfs) |
+|VM Drive | 1tb nvme SSD (zfs) |
+|Truenas Drives | 2 12tb HDD (zfs mirror) |
 
 # Workoads
 | Name | Type | Purpose |
@@ -157,7 +158,7 @@ In the Proxmox web interface:
   proxmox-boot-tool refresh
   ```
   Then **reboot**.
-  ## nic-pinning
+  # nic-pinning
   Sometimes device naming changes when pci devices are added are removed, which renames the management interface and hides the management gui.   
   
   To avoid this problem, we use [proxmox-network-interface-pinning](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_using_the_pve_network_interface_pinning_tool) tool to permanently rename certain nics.
@@ -182,8 +183,8 @@ In the Proxmox web interface:
 
   see [docs](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_using_the_pve_network_interface_pinning_tool) for details on proxmox-network-interface-pinning
 
-## Backup Strategy
-### Host config backup
+# Backup Strategy
+## Host config backup
 Backup
 1) pve
 2) Pinned nics
@@ -211,8 +212,14 @@ Or:
 ```
 tar -czf backup.tar.gz etc
 ```
-Restore them manually
-Run:
+Restore them manually with rsync. Example:
+```
+rsync -a /root/pve0-backup/etc/network/ /etc/network/
+```
+> [!TIP]
+> Use rsync as written, otherwise risk making a copy of the directory inside the directory.
+
+Then, run:
 ```
 proxmox-boot-tool refresh
 ```
@@ -222,7 +229,7 @@ reboot now
 ```
 ssh into a different node on the  cluster:
 ```
-ssh root@192.168.88.246
+ssh root@<other-node-ip>
 ```
 run:
 ```
