@@ -6,12 +6,15 @@ This system runs the bulk of core infrustructure including storage, media servic
 # Hardware
 | Hardware | Specification | Reference |
 |----------|---------------| --------- |
-|Motherboard | Z490 Taichi | [manual](https://download.asrock.com/Manual/Z490%20Taichi.pdf)
-|CPU | Intel i5-11400k | [docs](https://www.intel.com/content/www/us/en/products/sku/212270/intel-core-i511400-processor-12m-cache-up-to-4-40-ghz/specifications.html)
+|Motherboard | Z490 Taichi | [manual](https://download.asrock.com/Manual/Z490%20Taichi.pdf)  |
+|CPU | Intel i5-11400k | [docs](https://www.intel.com/content/www/us/en/products/sku/212270/intel-core-i511400-processor-12m-cache-up-to-4-40-ghz/specifications.html) |
+|CPU Cooler | Thermalright Peerless Assassin 120 SE | 
 |GPU | Intel® UHD Graphics 730 | [specs](https://www.techpowerup.com/gpu-specs/uhd-graphics-730.c3765)
 |Ram | 96GB DDR4 |
 |Boot Drive | 128g M.2 SATA SSD (zfs) |
 |VM Drive | 1tb nvme SSD (zfs) |
+|HBA | LSI 9201-81 | [manual](https://docs.broadcom.com/doc/12353333)
+|Scratch disk | TEAMGROUP T-Force 1 TB 2.5" SSD |
 |Truenas Drives | 2 12tb HDD (zfs mirror) |
 
 # Workoads
